@@ -40,7 +40,7 @@ namespace {
 	}
 
 	struct NullDeleter {
-		void operator() (void const *) const {}
+		void operator() (void const * /*unused*/) const {}
 	};
 
 	/// Tag for formatting severyity level in log output.
@@ -48,17 +48,18 @@ namespace {
 
 	/// Format a severity level for log output.
 	boost::log::formatting_ostream & operator<< (boost::log::formatting_ostream & stream,  log::to_log_manip<LogLevel, LevelTag> const & level) {
-		static char const * strings[] = {
+		constexpr size_t NUMBER_OF_STRINGS = 6;
+		static std::array<char const *, NUMBER_OF_STRINGS> strings{{
 			"D",
 			"I",
 			"S",
 			"W",
 			"E",
 			"F",
-		};
+		}};
 
 		std::size_t numeric = int(level.get());
-		if (numeric < sizeof(strings) / sizeof(strings[0])) {
+		if (numeric < sizeof(strings.data()) / sizeof(strings[0])) { //NOLINT
 			stream << strings[numeric];
 		} else {
 			stream << "?";
@@ -71,27 +72,27 @@ namespace {
 	template<typename Slave>
 	class AnsiColorFormatter {
 	protected:
-		Slave slave;
+		Slave slave; //NOLINT
 
 	public:
 		/// Construct an AnsiColorFormatter with a slave formatter.
-		AnsiColorFormatter(Slave const & slave) : slave(slave) {}
+		explicit AnsiColorFormatter(Slave const & slave) : slave(slave) {}
 
 		/// Construct an AnsiColorFormatter with a slave formatter.
-		AnsiColorFormatter(Slave && slave) : slave(std::move(slave)) {}
+		explicit AnsiColorFormatter(Slave && slave) : slave(std::move(slave)) {}
 
 		/// Format the record.
 		void operator() (log::record_view const & record, log::basic_formatting_ostream<char> & stream) {
 			LogLevel severity = log::extract_or_default<LogLevel>("Severity", record, LogLevel::info);
 
 			// Add color code.
-			switch (severity) {
+			switch (severity) { //NOLINT
 				case LogLevel::debug:
 					stream << "\x1b[1;30m";
 					break;
-				case LogLevel::info:
+				case LogLevel::info: //NOLINT
 					stream << "\x1b[0m";
-					break;
+					break; //NOLINT
 				case LogLevel::success:
 					stream << "\x1b[32m";
 					break;
@@ -109,7 +110,7 @@ namespace {
 			}
 
 			// Invoke slave.
-			slave(record, stream);
+			slave(record, stream); //NOLINT
 
 			// Reset color.
 			stream << "\x1b[0m";
@@ -136,7 +137,8 @@ namespace {
 	}
 
 	// Text format for file and console log.
-	auto text_format = log::expressions::stream
+	// TODO (boost): Suppressing for now, but needs a fix imo.
+	auto text_format = log::expressions::stream // NOLINT
 		<< "[" << log::expressions::format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%S.%f") << "] "
 		<< "[" << log::expressions::attr<LogLevel, LevelTag>("Severity") << "] "
 		<< "[" << log::expressions::attr<std::string>("Node") << "] "
@@ -190,20 +192,21 @@ namespace {
 			return nullptr;
 		}
 	}
-}
+} //namespace
 
 std::ostream & operator<< (std::ostream & stream, LogLevel level) {
-	static char const * strings[] = {
+	constexpr size_t NUMBER_OF_STRINGS = 6;
+	static std::array<char const *, NUMBER_OF_STRINGS> strings{{
 		"debug",
 		"info",
 		"success",
 		"warning",
 		"error",
 		"fatal",
-	};
+	}};
 
 	std::size_t numeric = int(level);
-	if (numeric < sizeof(strings) / sizeof(strings[0])) {
+	if (numeric < sizeof(strings.data()) / sizeof(strings[0])) { //NOLINT
 		stream << strings[numeric];
 	} else {
 		stream << "unknown";
@@ -227,10 +230,10 @@ void setupLogging(std::string const & log_file, std::string const & name) {
 	// Add  sinks.
 	core->add_sink(createConsoleSink());
 	core->add_sink(createSyslogSink());
-	if (!log_file.empty()) core->add_sink(createFileSink(log_file));
+	if (!log_file.empty()) { core->add_sink(createFileSink(log_file)); }
 
 	// Capture log4cxx output too.
 	registerLog4cxxAppenders();
 }
 
-}
+} //namespace dr

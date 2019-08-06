@@ -1,0 +1,82 @@
+Checks: "-*,\
+boost-*,\
+bugprone-*,\
+cert-*,\
+cppcoreguidelines-*,\
+clang-analyzer-*,\
+google-*,\
+-google-runtime-references,\
+misc-*,\
+modernize-*,\
+-modernize-use-auto,\
+performance-*,\
+readability-*,\
+-cppcoreguidelines-pro-type-static-cast-downcast,\
+-cppcoreguidelines-pro-bounds-array-to-pointer-decay, \
+-cppcoreguidelines-pro-bounds-pointer-arithmetic, \
+-cert-dcl03-c,\
+-misc-static-assert,\
+-clang-diagnostic-unused-function,\
+-cppcoreguidelines-pro-bounds-constant-array-index,\
+-cppcoreguidelines-pro-type-reinterpret-cast,\
+-cppcoreguidelines-pro-type-union-access,\
+-cppcoreguidelines-pro-type-vararg,\
+-readability-uppercase-literal-suffix,\
+-clang-analyzer-core.uninitialized.Assign,\
+-clang-analyzer-core.UndefinedBinaryOperatorResult,\
+-misc-non-private-member-variables-in-classes,\
+"
+WarningsAsErrors: '*'
+HeaderFilterRegex: '/usr/include/*'
+AnalyzeTemporaryDtors: false
+
+CheckOptions:
+  - key:             cppcoreguidelines-avoid-magic-numbers.IgnoredFloatingPointValues
+    value:           '0.0;1.0;2.0;0.5;'
+  - key:             readability-magic-numbers.IgnoredFloatingPointValues
+    value:           '0.0;1.0;2.0;0.5;'
+  - key:             cppcoreguidelines-avoid-magic-numbers.IgnoredIntegerValues
+    value:           '0;1;2;3;4;5;8;16;32;64;128;255;'
+  - key:             readability-magic-numbers.IgnoredIntegerValues
+    value:           '0;1;2;3;4;5;8;16;32;64;128;255;'
+  - key:             readability-identifier-naming.NamespaceCase
+    value:           lower_case
+  - key:             readability-identifier-naming.ClassCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.EnumCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.MemberCase
+    value:           lower_case
+  - key:             readability-identifier-naming.MemberSuffix
+    value:           _
+  - key:             readability-identifier-naming.ParameterCase
+    value:           lower_case
+  - key:             readability-identifier-naming.UnionCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.VariableCase
+    value:           lower_case
+  - key:             readability-identifier-naming.GlobalConstantCase
+    value:           UPPER_CASE
+  - key:             readability-identifier-naming.StaticConstantCase
+    value:           UPPER_CASE
+  - key:             readability-identifier-naming.ConstexprVariableCase
+    value:           UPPER_CASE
+  - key:             readability-identifier-naming.EnumConstantCase
+    value:           UPPER_CASE
+  - key:             cppcoreguidelines-avoid-magic-numbers.IgnorePowersOf2IntegerValues
+    value:           true
+  - key:             readability-magic-numbers.IgnorePowersOf2IntegerValues
+    value:           true
+  - key:             misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value:           true
+
+# Some reasoning notes:
+# array to pointer decay causes issues inside assert macro.
+# cert-dcl03-c and misc-static-assert is deactivated because assert(false) != static_assert(false)
+
+
+# The following checks seem to have bugs and/or find false positives:
+
+#-clang-analyzer-core.uninitialized.Assign
+#-clang-analyzer-core.UndefinedBinaryOperatorResult
+#-misc-non-private-member-variables-in-classes

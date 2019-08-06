@@ -22,14 +22,14 @@ namespace {
 	class DrLog4cxxAppender : public log4cxx::AppenderSkeleton {
 	protected:
 		/// If true, also log a warning whenever a log4cxx message is captured.
-		bool warn;
+		bool warn; //NOLINT
 
 	public:
 		/// Construct a log4cxx to DR  appender.
-		DrLog4cxxAppender(bool warn) : warn(warn) {}
+		explicit DrLog4cxxAppender(bool warn) : warn(warn) {}
 
 		/// Append a log event to the log.
-		virtual void append(log4cxx::spi::LoggingEventPtr const & event, log4cxx::helpers::Pool &) override {
+		void append(log4cxx::spi::LoggingEventPtr const & event, log4cxx::helpers::Pool & /* unused pool */) override {
 			log4cxx::spi::LocationInfo const & location = event->getLocationInformation();
 			(void) location;
 
@@ -40,12 +40,12 @@ namespace {
 		}
 
 		/// Close the appender.
-		virtual void close() override {}
+		void close() override {}
 
 		/// Does the appender need a layout?
-		virtual bool requiresLayout() const override { return false; }
+		bool requiresLayout() const override { return false; }
 	};
-}
+} //namespace
 
 /// Register an appender with log4cxx to pipe all messages to the DR log.
 void registerLog4cxxAppenders() {
@@ -53,4 +53,4 @@ void registerLog4cxxAppenders() {
 	root_logger->addAppender(new DrLog4cxxAppender(true));
 }
 
-}
+} //namespace dr
